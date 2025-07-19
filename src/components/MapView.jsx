@@ -53,7 +53,6 @@ const MapView = ({ pins, setPins, selectedPin }) => {
       setTimeout(() => {
         if (newPinPopupRef.current) {
           newPinPopupRef.current._source.openPopup();
-          console.log("✅ Popup opened manually (after delay)");
         }
       }, 0);
     }
@@ -71,9 +70,6 @@ const MapView = ({ pins, setPins, selectedPin }) => {
   }, []);
 
   // Track newPin changes
-  useEffect(() => {
-    console.log("newPin updated to:", newPin);
-  }, [newPin]);
 
   // Fetch pins from backend
   useEffect(() => {
@@ -137,7 +133,6 @@ const MapView = ({ pins, setPins, selectedPin }) => {
   const MapClickHandler = () => {
     useMapEvents({
       click(e) {
-        console.log("Map clicked at:", e.latlng);
         setNewPin({
           lat: e.latlng.lat,
           lng: e.latlng.lng,
@@ -162,10 +157,9 @@ const MapView = ({ pins, setPins, selectedPin }) => {
             attribution='&copy; <a href="https://osm.org/copyright">OpenStreetMap</a>'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
-          {/* Map click functionality */}
           <MapClickHandler />
-          {/* Automatically fly to selected pin */}
-          {selectedPin && <FlyToPin pin={selectedPin} />} {/* ✅ New */}
+     
+          {selectedPin && <FlyToPin pin={selectedPin} />} 
           {/* Render saved pins */}
           {pins.map((pin) => (
             <Marker
@@ -190,11 +184,11 @@ const MapView = ({ pins, setPins, selectedPin }) => {
           {selectedPin && showHighlight && (
             <Circle
               center={[selectedPin.lat, selectedPin.lng]}
-              radius={700} // Highlight radius
+              radius={700} 
               pathOptions={{ color: "red", fillOpacity: 0.2 }}
             />
           )}
-          {/* 🧭 Reset Button - only shows when a pin is selected */}
+          {/*  Reset Button - only shows when a pin is selected */}
           {selectedPin && (
             <button
               onClick={() => setTriggerReset(true)}
@@ -203,15 +197,19 @@ const MapView = ({ pins, setPins, selectedPin }) => {
               🧭 Reset View
             </button>
           )}
-          {/* 🔁 Only render ResetView when triggered */}
+          {/*  Only render ResetView when triggered */}
           {triggerReset && (
             <ResetView onComplete={() => setTriggerReset(false)} />
           )}
           {/* Render popup for new pin */}
           {newPin && (
             <Marker position={[newPin.lat, newPin.lng]}>
-              <Popup ref={newPinPopupRef}>
-                {console.log("🔵 Popup rendered for new pin")}
+              <Popup ref={newPinPopupRef}
+                eventHandlers={{
+                  remove: () => {
+                    setNewPin(null); 
+                  },
+                }}>
                 <div className="flex flex-col gap-2">
                   <input
                     type="text"
@@ -223,7 +221,6 @@ const MapView = ({ pins, setPins, selectedPin }) => {
                   <button
                     className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 disabled:opacity-50"
                     onClick={() => {
-                      console.log("🟢 Save button clicked");
                       handleSavePin();
                     }}
                     disabled={saving}
