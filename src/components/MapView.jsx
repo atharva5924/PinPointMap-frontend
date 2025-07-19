@@ -90,7 +90,7 @@ const MapView = ({ pins, setPins, selectedPin }) => {
         {
           params: { format: "json", lat, lon: lng },
           headers: {
-            "User-Agent": "pin-drop-map/1.0 ((https://github.com/atharvanile))",
+            "User-Agent": "pin-drop-map/1.0 ",
           },
         }
       );
