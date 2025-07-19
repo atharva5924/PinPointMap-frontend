@@ -78,7 +78,7 @@ const MapView = ({ pins, setPins, selectedPin }) => {
   // Fetch pins from backend
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/pins")
+      .get("https://pinpointmap-backend.onrender.com/api/pins")
       .then((res) => setPins(res.data))
       .catch((err) => console.error("Error fetching pins:", err));
   }, []);
@@ -123,7 +123,7 @@ const MapView = ({ pins, setPins, selectedPin }) => {
       address,
     };
     try {
-      const res = await axios.post("http://localhost:5000/api/pins", pinToSave);
+      const res = await axios.post("https://pinpointmap-backend.onrender.com/api/pins", pinToSave);
       setPins([...pins, res.data]);
       setNewPin(null);
     } catch (err) {
