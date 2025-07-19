@@ -61,7 +61,7 @@ Built with React, React-Leaflet, Node.js, Express, and MongoDB.
 
 Branding animation with the tagline “Drop. Discover. Remember.” displayed during app launch.
 
-![Input Form](./screenshots/splashs-screen.png)
+![Input Form](./screenshots/splash-screen.png)
 
 ---
 
