@@ -89,9 +89,12 @@ function App() {
         {stage === 3 && (
           <div className="flex h-[calc(100vh-6rem)]">
             {zooming && (
-              <div className="fixed top-5 right-5 bg-white text-blue-600 shadow-lg px-4 py-2 rounded z-[1000] animate-pulse">
-                ⏳ Zooming to selected pin...
-              </div>
+              <>
+                <div className="fixed inset-0 backdrop-blur-sm z-[999] pointer-events-none"></div>
+                <div className="fixed top-5 right-5 bg-white text-blue-600 shadow-lg px-4 py-2 rounded z-[1000] animate-pulse">
+                  ⏳ Zooming to selected pin...
+                </div>
+              </>
             )}
             <Sidebar
               pins={pins}
