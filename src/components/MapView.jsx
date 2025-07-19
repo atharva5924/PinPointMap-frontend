@@ -7,7 +7,7 @@ import {
   Circle,
 } from "react-leaflet";
 import { useState, useEffect, useRef } from "react";
-import FlyToPin from "./FlyToPin"; 
+import FlyToPin from "./FlyToPin";
 import axios from "axios";
 import L from "leaflet";
 import ResetView from "./ResetView";
@@ -23,7 +23,6 @@ L.Icon.Default.mergeOptions({
   shadowUrl: new URL("leaflet/dist/images/marker-shadow.png", import.meta.url),
 });
 
-// Custom icons
 const defaultIcon = new L.Icon({
   iconUrl: new URL("leaflet/dist/images/marker-icon.png", import.meta.url).href,
   shadowUrl: new URL("leaflet/dist/images/marker-shadow.png", import.meta.url)
@@ -39,7 +38,7 @@ const selectedIcon = new L.Icon({
 });
 
 const MapView = ({ pins, setPins, selectedPin }) => {
-  const [mapCenter, setMapCenter] = useState([20.5937, 78.9629]); // India default
+  const [mapCenter, setMapCenter] = useState([20.5937, 78.9629]);
   const [newPin, setNewPin] = useState(null);
   const [remarkInput, setRemarkInput] = useState("");
   const newPinPopupRef = useRef(null);
@@ -47,7 +46,6 @@ const MapView = ({ pins, setPins, selectedPin }) => {
   const [saving, setSaving] = useState(false);
   const [triggerReset, setTriggerReset] = useState(false);
 
-  // Auto open new pin popup
   useEffect(() => {
     if (newPin) {
       setTimeout(() => {
@@ -58,7 +56,6 @@ const MapView = ({ pins, setPins, selectedPin }) => {
     }
   }, [newPin]);
 
-  // Get user's location
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(
       (pos) => {
@@ -69,9 +66,6 @@ const MapView = ({ pins, setPins, selectedPin }) => {
     );
   }, []);
 
-  // Track newPin changes
-
-  // Fetch pins from backend
   useEffect(() => {
     axios
       .get("https://pinpointmap-backend.onrender.com/api/pins")
@@ -81,15 +75,14 @@ const MapView = ({ pins, setPins, selectedPin }) => {
 
   useEffect(() => {
     if (selectedPin) {
-      setShowHighlight(false); 
+      setShowHighlight(false);
       const timeout = setTimeout(() => {
         setShowHighlight(true);
-      }, 1200); 
-      return () => clearTimeout(timeout); 
+      }, 1200);
+      return () => clearTimeout(timeout);
     }
   }, [selectedPin]);
 
-  // Fetch address from Nominatim
   const fetchAddress = async (lat, lng) => {
     try {
       const res = await axios.get(
@@ -108,7 +101,6 @@ const MapView = ({ pins, setPins, selectedPin }) => {
     }
   };
 
-  // Save pin to backend
   const handleSavePin = async () => {
     setSaving(true);
     const address = await fetchAddress(newPin.lat, newPin.lng);
@@ -129,7 +121,6 @@ const MapView = ({ pins, setPins, selectedPin }) => {
     }
   };
 
-  // Handle map click
   const MapClickHandler = () => {
     useMapEvents({
       click(e) {
@@ -143,97 +134,86 @@ const MapView = ({ pins, setPins, selectedPin }) => {
     return null;
   };
 
-
   return (
-    <>
-    
-      <div className="h-screen w-full">
-        <MapContainer
-          center={mapCenter}
-          zoom={5}
-          style={{ height: "100%", width: "100%" }}
-        >
-          <TileLayer
-            attribution='&copy; <a href="https://osm.org/copyright">OpenStreetMap</a>'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+    <div className="h-screen w-full max-h-screen">
+      <MapContainer
+        center={mapCenter}
+        zoom={5}
+        className="h-full w-full"
+      >
+        <TileLayer
+          attribution='&copy; <a href="https://osm.org/copyright">OpenStreetMap</a>'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+        <MapClickHandler />
+        {selectedPin && <FlyToPin pin={selectedPin} />}
+        {pins.map((pin) => (
+          <Marker
+            key={pin._id}
+            position={[pin.lat, pin.lng]}
+            icon={
+              selectedPin && selectedPin._id === pin._id
+                ? selectedIcon
+                : defaultIcon
+            }
+          >
+            <Popup>
+              <p>
+                <strong>Remark:</strong> {pin.remark || "No remark"}
+              </p>
+              <p>
+                <strong>Address:</strong> {pin.address || "N/A"}
+              </p>
+            </Popup>
+          </Marker>
+        ))}
+        {selectedPin && showHighlight && (
+          <Circle
+            center={[selectedPin.lat, selectedPin.lng]}
+            radius={700}
+            pathOptions={{ color: "red", fillOpacity: 0.2 }}
           />
-          <MapClickHandler />
-     
-          {selectedPin && <FlyToPin pin={selectedPin} />} 
-          {/* Render saved pins */}
-          {pins.map((pin) => (
-            <Marker
-              key={pin._id}
-              position={[pin.lat, pin.lng]}
-              icon={
-                selectedPin && selectedPin._id === pin._id
-                  ? selectedIcon
-                  : defaultIcon
-              }
+        )}
+        {selectedPin && (
+          <button
+            onClick={() => setTriggerReset(true)}
+            className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 bg-gray-800 text-white px-4 py-2 rounded shadow-lg hover:bg-gray-700 z-[1000] text-sm sm:text-base"
+          >
+            🧭 Reset View
+          </button>
+        )}
+        {triggerReset && <ResetView onComplete={() => setTriggerReset(false)} />}
+        {newPin && (
+          <Marker position={[newPin.lat, newPin.lng]}>
+            <Popup
+              ref={newPinPopupRef}
+              eventHandlers={{
+                remove: () => {
+                  setNewPin(null);
+                },
+              }}
             >
-              <Popup>
-                <p>
-                  <strong>Remark:</strong> {pin.remark || "No remark"}
-                </p>
-                <p>
-                  <strong>Address:</strong> {pin.address || "N/A"}
-                </p>
-              </Popup>
-            </Marker>
-          ))}
-          {selectedPin && showHighlight && (
-            <Circle
-              center={[selectedPin.lat, selectedPin.lng]}
-              radius={700} 
-              pathOptions={{ color: "red", fillOpacity: 0.2 }}
-            />
-          )}
-          {/*  Reset Button - only shows when a pin is selected */}
-          {selectedPin && (
-            <button
-              onClick={() => setTriggerReset(true)}
-              className="fixed bottom-5 right-5 bg-gray-800 text-white px-4 py-2 rounded shadow-lg hover:bg-gray-700 z-[1000]"
-            >
-              🧭 Reset View
-            </button>
-          )}
-          {/*  Only render ResetView when triggered */}
-          {triggerReset && (
-            <ResetView onComplete={() => setTriggerReset(false)} />
-          )}
-          {/* Render popup for new pin */}
-          {newPin && (
-            <Marker position={[newPin.lat, newPin.lng]}>
-              <Popup ref={newPinPopupRef}
-                eventHandlers={{
-                  remove: () => {
-                    setNewPin(null); 
-                  },
-                }}>
-                <div className="flex flex-col gap-2">
-                  <input
-                    type="text"
-                    placeholder="Enter remark"
-                    className="border px-2 py-1 w-25 rounded "
-                    value={remarkInput}
-                    onChange={(e) => setRemarkInput(e.target.value)}
-                  />
-                  <button
-                    className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 disabled:opacity-50"
-                    onClick={() => {
-                      handleSavePin();
-                    }}
-                    disabled={saving}
-                  >
-                    {saving ? "Saving..." : "Save Pin"}
-                  </button>
-                </div>
-              </Popup>
-            </Marker>
-          )}
-        </MapContainer>
-      </div>
-    </>
+              <div className="flex flex-col gap-2 w-[200px] sm:w-[250px]">
+                <input
+                  type="text"
+                  placeholder="Enter remark"
+                  className="border px-2 py-1 rounded text-sm sm:text-base"
+                  value={remarkInput}
+                  onChange={(e) => setRemarkInput(e.target.value)}
+                />
+                <button
+                  className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 disabled:opacity-50 text-sm sm:text-base"
+                  onClick={handleSavePin}
+                  disabled={saving}
+                >
+                  {saving ? "Saving..." : "Save Pin"}
+                </button>
+              </div>
+            </Popup>
+          </Marker>
+        )}
+      </MapContainer>
+    </div>
   );
 };
 
