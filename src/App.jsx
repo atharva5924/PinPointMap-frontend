@@ -45,7 +45,7 @@ function App() {
       setPins((prev) =>
         prev.map((p) => (p._id === updatedPin._id ? updatedPin : p))
       );
-      console.log("✅ Pin updated:", updatedPin);
+    
     } catch (error) {
       console.error("❌ Failed to update pin:", error);
     }
