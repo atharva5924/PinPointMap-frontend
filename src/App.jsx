@@ -31,14 +31,14 @@ function App() {
   };
 
   const handleDeletePin = async (id) => {
-    await axios.delete(`https://pin-point-map-frontend.vercel.app/api/pins/${id}`);
+    await axios.delete(`https://pinpointmap-backend.onrender.com/api/pins/${id}`);
     setPins(pins.filter((pin) => pin._id !== id));
   };
 
   const handleEditPin = async (pinId, updatedData) => {
     try {
       const res = await axios.put(
-        `https://pin-point-map-frontend.vercel.app/api/pins/${pinId}`,
+        `https://pinpointmap-backend.onrender.com/api/pins/${pinId}`,
         updatedData
       );
       const updatedPin = res.data;
