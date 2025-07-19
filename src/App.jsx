@@ -87,7 +87,7 @@ function App() {
 
       <div className="min-h-screen bg-gradient-to-r from-blue-100 to-green-100 pt-3 relative z-0">
         {stage === 3 && (
-          <div className="flex h-[calc(100vh-6rem)]">
+          <div className="flex flex-col md:flex-row h-[calc(100vh-6rem)]">
             {zooming && (
               <>
                 <div className="fixed inset-0 backdrop-blur-sm z-[999] pointer-events-none"></div>
@@ -102,7 +102,7 @@ function App() {
               onDeletePin={handleDeletePin}
               onEditPin={handleEditPin}
             />
-            <div className="flex-1 relative">
+            <div className="flex-1 relative min-h-[300px]">
               <MapView
                 pins={pins}
                 setPins={setPins}
